@@ -9,3 +9,4 @@
 <div align="center">
 ⚡ HACKTHEBOX ARSENAL ⚡
 <img src="https://readme-typing-svg.herokuapp.com?font=Orbitron&size=25&duration=3000&pause=1000&color=00FF41&center=true&vCenter=true&width=600&lines=Welcome+to+the+Matrix...;Penetration+Testing+Mastery;CTF+Challenges+Conquered;Root+Flags+Collected" alt="Typing SVG" />
+</div>
