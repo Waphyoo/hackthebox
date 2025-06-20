@@ -33,17 +33,22 @@ use %p to read stack
 
 found 0xdeadbeef we want to access open_door()
 todo change local_48 = 0xdeadbeef----->0xdead1337
-use %n to Writes the number of characters into a pointer
+
 printf(format_string, arg2, arg3, arg4, ...)
                   ↑     ↑     ↑
                 %1$   %2$   %3$
 ![image](https://github.com/user-attachments/assets/b1ce3d9c-5bc6-4bad-9311-a039f1d53b5c)
-%1$p → 0x7ffc19f74c60  ← ที่อยู่ของ local_38 (format string)
-%2$p → 0x7faae4fdd8c0  ← ข้อมูลอื่นๆ
-%3$p → (nil)
-%4$p → 0xf
-%5$p → (nil) 
+%1$p → address local_38 (format string)
 %6$p → 0xdeadbeef      ← local_48 (target)
 %7$p → 0x7ffc19f77300  ← local_40 (pointer to local_48)
+![image](https://github.com/user-attachments/assets/c1cf4da1-bb38-42ba-b8c0-99223ed28223)
 
+
+![image](https://github.com/user-attachments/assets/b6da8434-5360-4a12-a2bd-f7652a24c587)
+%4919x  is print 4911+4dafa6c0 Hexs
+![image](https://github.com/user-attachments/assets/a210a354-5336-4777-8393-c97130f53e13)
+
+use %n to Writes the number of characters into a pointer. 
+character 0f (4911space = 4911(20Hex))+8=4919Hexs ---->1337 number of character
+%7$hn
 
