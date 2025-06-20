@@ -34,6 +34,7 @@ use %p to read stack
 found 0xdeadbeef we want to access open_door()
 todo change local_48 = 0xdeadbeef----->0xdead1337
 
+
 printf(format_string, arg2, arg3, arg4, ...)
                   ↑     ↑     ↑
                 %1$   %2$   %3$
@@ -51,4 +52,5 @@ printf(format_string, arg2, arg3, arg4, ...)
 use %n to Writes the number of characters into a pointer. 
 character 0f (4911space = 4911(20Hex))+8=4919Hexs ---->1337 number of character
 %7$hn
+![image](https://github.com/user-attachments/assets/b7fccaaf-5651-4a87-93ba-65a27275a868)
 
