@@ -34,4 +34,7 @@ mattp005numbertwo
 backrest_root:!@#$%^
 
 ![alt text](image-16.png)
+
+BACKREST_RESTIC_COMMAND 	Path to restic binary
+https://github.com/garethgeorge/backrest/blob/main/README.md
 ![alt text](image-17.png)
