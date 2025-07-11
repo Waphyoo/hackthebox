@@ -13,3 +13,7 @@ bot จะ render หน้าที่มีช่องโหว่ ssti (|saf
 ![alt text](image-4.png)
 
 ![alt text](image.png)
+
+![alt text](image-5.png)
+
+ใส่ payload alert ที่ไม่ใช้ script tag ตรงๆ
