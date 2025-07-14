@@ -22,27 +22,14 @@ def isAuthenticated(f):
     def decorator(*args, **kwargs):
         token = request.cookies.get('auth', False)
 
-        debug_log(f"[AUTH] Received request to {request.endpoint}")
-        
         if not token:
-            debug_log("[AUTH] No token found")
             return abort(401, 'Unauthorised access detected!')
-        
-        debug_log(f"[AUTH] Token received: {token[:50]}...")
         
         try:
             user = pickle.loads(base64.urlsafe_b64decode(token))
-            debug_log(f"[AUTH] Successfully deserialized user: {user}")
-            debug_log(f"[AUTH] User type: {type(user)}")
-            
             kwargs['user'] = user
-            result = f(*args, **kwargs)
-            debug_log(f"[AUTH] Request completed successfully")
-            return result
-            
-        except Exception as e:
-            debug_log(f"[AUTH] Deserialization error: {str(e)}")
-            debug_log(f"[AUTH] Error type: {type(e)}")
+            return f(*args, **kwargs)
+        except:
             return abort(401, 'Unauthorised access detected!')
 
     return decorator
