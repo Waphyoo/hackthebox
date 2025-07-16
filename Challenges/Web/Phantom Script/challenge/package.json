@@ -1,0 +1,22 @@
+{
+  "name": "web_saga_scrolls",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon -e html,js,css index.js",
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "Xclow3n",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "express": "^4.19.2",
+    "nunjucks": "^3.2.4",
+    "puppeteer": "^23.6.0",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

