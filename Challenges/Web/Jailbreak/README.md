@@ -5,6 +5,7 @@ XXE ที่ version ได้
 
 ![alt text](image.png)
 
+![alt text](image-2.png)
 
 XXE (XML External Entity) เกิดจากการที่แอปพลิเคชันประมวลผล XML input ที่ไม่ปลอดภัย โดยเฉพาะเมื่อ XML parser อนุญาตให้ประมวลผล external entities
 

