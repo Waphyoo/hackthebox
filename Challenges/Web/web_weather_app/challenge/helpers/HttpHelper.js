@@ -2,6 +2,7 @@ const http = require('http');
 
 module.exports = {
 	HttpGet(url) {
+		console.log(`HttpHelper: HttpGet called with URL: ${url}`);
 		return new Promise((resolve, reject) => {
 			http.get(url, res => {
 				let body = '';

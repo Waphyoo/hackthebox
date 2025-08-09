@@ -26,5 +26,5 @@ app.all('*', (req, res) => {
     await db.connect();
     await db.migrate();
 
-    app.listen(80, () => console.log('Listening on port 80'));
+    app.listen(88, () => console.log('Listening on port 88'));
 })();

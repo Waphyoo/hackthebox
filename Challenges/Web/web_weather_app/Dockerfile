@@ -17,7 +17,7 @@ RUN npm install
 COPY config/supervisord.conf /etc/supervisord.conf
 
 # Expose the port node-js is reachable on
-EXPOSE 80
+EXPOSE 88
 
 # Start the node-js application
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]

@@ -54,6 +54,7 @@ router.post('/login', (req, res) => {
 
 router.post('/api/weather', (req, res) => {
 	let { endpoint, city, country } = req.body;
+	console.log(`API Request: endpoint=${endpoint}, city=${city}, country=${country}`);
 
 	if (endpoint && city && country) {
 		return WeatherHelper.getWeather(res, endpoint, city, country);
