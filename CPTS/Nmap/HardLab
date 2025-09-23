@@ -1,0 +1,10 @@
+# Nmap 7.95 scan initiated Tue Sep 23 11:02:02 2025 as: /usr/lib/nmap/nmap -sS --max-retries 3 --stats-every=5s -oN HardLab -Pn --min-rate 1000 --max-rate 1500 --source-port 53 10.129.227.208
+Nmap scan report for 10.129.227.208
+Host is up (0.28s latency).
+Not shown: 803 closed tcp ports (reset), 194 filtered tcp ports (no-response)
+PORT      STATE SERVICE
+22/tcp    open  ssh
+80/tcp    open  http
+50000/tcp open  ibm-db2
+
+# Nmap done at Tue Sep 23 11:02:05 2025 -- 1 IP address (1 host up) scanned in 3.09 seconds
