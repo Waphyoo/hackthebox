@@ -234,7 +234,17 @@ VRFY aaaaaaaaaaaaaaaaaaaaaaaaaaaa
 
 ดังนั้น เราไม่ควรเชื่อถือผลลัพธ์จากเครื่องมืออัตโนมัติทั้งหมด เพราะเครื่องมือเหล่านั้นจะรันคำสั่งที่ตั้งค่าไว้ล่วงหน้า แต่ไม่มีฟังก์ชันใดระบุอย่างชัดเจนว่าผู้ดูแลระบบตั้งค่า server ที่ทดสอบไว้อย่างไร
 
+**SMTP error or reply messages** https://serversmtp.com/smtp-error/
+
 ![alt text](image-4.png)
+
+Bruce force Username
+
+```
+┌──(kali㉿DESKTOP-KQAT41L)-[/mnt/c/Users/nonny]
+└─$ sudo smtp-user-enum -M VRFY -U /usr/share/seclists/Usernames/Names/names.txt -t 10.129.169.221  -w 10
+```
+![alt text](image-2.png)
 
 ## การใช้งานผ่าน Web Proxy
 
