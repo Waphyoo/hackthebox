@@ -43,3 +43,143 @@
 | **Web Archive Analysis** (วิเคราะห์เว็บไซต์เก่า) | ตรวจสอบภาพรวมในอดีตของเว็บไซต์เป้าหมายเพื่อระบุการเปลี่ยนแปลง, ช่องโหว่ หรือข้อมูลที่ซ่อนอยู่ | ใช้ Wayback Machine เพื่อดูเว็บไซต์เป้าหมายในอดีตว่ามีการเปลี่ยนแปลงอย่างไรเมื่อเวลาผ่านไป | Wayback Machine | **ต่ำมาก:** การเข้าถึงเว็บไซต์ที่เก็บถาวรเป็นกิจกรรมปกติ |
 | **Social Media Analysis** (วิเคราะห์โซเชียลมีเดีย) | รวบรวมข้อมูลจากแพลตฟอร์มโซเชียลมีเดีย เช่น LinkedIn, Twitter หรือ Facebook | ค้นหา LinkedIn สำหรับพนักงานขององค์กรเป้าหมายเพื่อเรียนรู้เกี่ยวกับบทบาท, ความรับผิดชอบ และเป้าหมาย social engineering ที่เป็นไปได้ | LinkedIn, Twitter, Facebook, เครื่องมือ OSINT เฉพาะทาง | **ต่ำมาก:** การเข้าถึงโปรไฟล์โซเชียลมีเดียสาธารณะไม่ถือว่าเป็นการบุกรุก |
 | **Code Repositories** (คลังเก็บโค้ด) | วิเคราะห์ code repositories สาธารณะ เช่น GitHub เพื่อหา credentials ที่ถูกเปิดเผยหรือช่องโหว่ | ค้นหา GitHub สำหรับ code snippets หรือ repositories ที่เกี่ยวข้องกับเป้าหมายที่อาจมีข้อมูลที่สำคัญหรือช่องโหว่ในโค้ด | GitHub, GitLab | **ต่ำมาก:** Code repositories มีไว้สำหรับการเข้าถึงสาธารณะ และการค้นหาไม่ใช่กิจกรรมที่น่าสงสัย |
+
+
+
+![alt text](image-6.png)
+
+
+![alt text](image-4.png)
+
+![alt text](image-5.png)
+
+
+![alt text](image-7.png)
+
+
+```
+┌──(pentest_env)─(kali㉿kali)-[~]
+└─$ python3 ReconSpider.py http://dev.web1337.inlanefreight.htb:48527
+
+┌──(pentest_env)─(kali㉿kali)-[~]
+└─$ cat results.json
+{
+    "emails": [
+        "1337testing@inlanefreight.htb"
+    ],
+    "links": [
+        "http://dev.web1337.inlanefreight.htb:48527/index-949.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-203.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-134.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-332.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-615.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-807.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-789.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-798.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-933.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-737.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-80.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-292.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-862.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-254.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-244.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-714.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-459.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-918.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-555.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-964.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-577.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-114.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-585.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-795.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-458.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-465.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-733.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-437.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-631.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-643.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-472.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-24.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-329.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-553.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-925.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-635.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-727.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-769.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-817.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-403.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-291.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-202.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-379.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-77.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-687.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-513.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-334.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-248.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-342.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-1000.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-799.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-988.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-977.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-300.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-504.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-531.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-226.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-204.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-525.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-734.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-105.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-939.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-748.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-408.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-989.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-947.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-567.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-384.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-335.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-888.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-815.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-574.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-581.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-561.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-909.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-626.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-895.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-350.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-247.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-302.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-938.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-755.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-760.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-364.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-224.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-944.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-728.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-641.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-385.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-463.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-326.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-189.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-431.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-220.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-948.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-785.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-165.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-166.html",
+        "http://dev.web1337.inlanefreight.htb:48527/index-660.html"
+    ],
+    "external_files": [],
+    "js_files": [],
+    "form_fields": [],
+    "images": [],
+    "videos": [],
+    "audio": [],
+    "comments": [
+        "<!-- Remember to change the API key to ba988b835be4aa97d068941dc852ff33 -->"
+    ]
+}              
+```
+
+
+
+
